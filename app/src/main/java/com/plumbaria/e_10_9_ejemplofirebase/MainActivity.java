@@ -5,9 +5,16 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,13 +25,37 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        // myRef  --> vamos a buscar por la clave --> "mensaje"
+        DatabaseReference myRef = database.getReference("mensaje");
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Aqui escribira el valor asociado
+                String value = dataSnapshot.getValue(String.class);
+                Log.d("Ejemplo Firebase", "Valor: " + value);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.w("Ejemplo Firebase", "Error al leer.",
+                        error.toException());
+            }
+        });
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Escribiendo en la base de datos", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                // myRef  --> "mensaje" sera la clave
+                DatabaseReference myRef = database.getReference("mensaje");
+                // myRef  --> "¡Hola, People!" es el valor
+                myRef.setValue("¡Hola, People!");
             }
+
         });
     }
 
